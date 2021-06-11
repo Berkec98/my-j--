@@ -1,0 +1,159 @@
+
+compilationUnit ::= [ package qualifiedIdentifier ; ]
+{ import qualifiedIdentifier ; }
+{ typeDeclaration }
+EOF
+
+qualifiedIdentifier ::= <identifier> { . <identifier> }
+
+typeDeclaration ::= typeDeclarationModifiers ( classDeclaration | interfaceDeclaration )
+| ;
+typeDeclarationModifiers ::= { public | protected | private | static | abstract | final }
+
+classDeclaration ::= class <identifier> [ extends qualifiedIdentifier ]
+[ implements qualifiedIdentifier { , qualifiedIdentifier } ]
+classBody
+
+interfaceDeclaration ::= interface <identifier> 
+[ extends qualifiedIdentifier { , qualifiedIdentifier } ]
+interfaceBody
+
+modifiers ::= { public | protected | private | static | abstract | final }
+classBody ::= { { ;
+| static block
+| block
+| modifiers memberDecl
+}
+}
+
+interfaceBody ::= { { ;
+| modifiers interfaceMemberDecl
+}
+}
+memberDecl ::= <identifier> 
+formalParameters
+[ throws qualifiedIdentifier { , qualifiedIdentifier } ] block
+| ( void | type ) <identifier> 
+formalParameters
+[ throws qualifiedIdentifier { , qualifiedIdentifier } ] ( block | ; )
+| type variableDeclarators ; 
+
+interfaceMemberDecl ::= ( void | type ) <identifier> // method
+formalParameters
+[ throws qualifiedIdentifier { , qualifiedIdentifier } ] ;
+| type variableDeclarators ; 
+
+block ::= { { blockStatemnt } }
+
+blockStatement ::= localVariableDeclarationStatement
+| statement
+
+statement ::= block
+| if parExpression statement [ else statement ]
+| for ( [ forInit ] ; [ expression ] ; [ forUpdate ] ) statement
+| while parExpression statement
+| do statement while parExpression ;
+| try block
+{ catch ( formalParameter ) block }
+[ finally block ] 
+| switch parExpression { { switchBlockStatementGroup } }
+| return [ expression ] ;
+| throw expression ;
+| break [ <identifier> ] ;
+| continue [ <identifier> ] ;
+| ;
+| <identifier> : statement
+| statementExpression ;
+
+formalParameters ::= ( [ formalParameter { , formalParameter } ] )
+formalParameter ::= [ final ] type <identifier>
+
+parExpression ::= ( expression )
+
+forInit ::= statementExpression { , statementExpression }
+| [ final ] type variableDeclarators
+forUpdate ::= statementExpression { , statementExpression }
+
+switchBlockStatementGroup ::= switchLabel { switchLabel } { blockStatement }
+switchLabel ::= case expression : 
+| default :
+
+localVariableDeclarationStatement ::= [ final ] type variableDeclarators ;
+
+variableDeclarators ::= variableDeclarator { , variableDeclarator }
+variableDeclarator ::= <identifier> [ = variableInitializer ]
+variableInitializer ::= arrayInitializer | expression
+
+arrayInitializer ::= { [ variableInitializer { , variableInitializer } ] }
+arguments ::= ( [ expression { , expression } ] )
+type ::= basicType | referenceType
+
+basicType ::= boolean | byte | char | short | int | float | long | double
+
+referenceType ::= basicType [ ] { [ ] }
+| qualifiedIdentifier { [ ] }
+statementExpression ::= expression 
+expression ::= assignmentExpression
+assignmentExpression ::= conditionalExpression 
+[
+( =
+| +=
+| -=
+| *=
+| /=
+| %=
+| >>=
+| >>>=
+| <<=
+| &=
+| |=
+| ^=
+) assignmentExpression ]
+
+conditionalExpression ::= conditionalOrExpression [ ? assignmentExpression : conditionalExpression ]
+conditionalOrExpression ::= conditionalAndExpression { || conditionalAndExpression }
+conditionalAndExpression ::= inclusiveOrExpression { && inclusiveOrExpression }
+
+inclusiveOrExpression ::= exclusiveOrExpression { | exclusiveOrExpression }
+exclusiveOrExpression ::= andExpression { ^ andExpression }
+andExpression ::= equalityExpression { & equalityExpression }
+
+equalityExpression ::= relationalExpression { ( == | != ) relationalExpression }
+relationalExpression ::= shiftExpression ( { ( < | > | <= | >= ) shiftExpression } | instanceof referenceType )
+shiftExpression ::= additiveExpression { ( << | >> | >>> ) additiveExpression }
+
+additiveExpression ::= multiplicativeExpression { ( + | - ) multiplicativeExpression }
+multiplicativeExpression ::= unaryExpression { ( * | / | % ) unaryExpression }
+
+unaryExpression ::= ++ unaryExpression
+| -- unaryExpression
+| ( + | - ) unaryExpression
+| simpleUnaryExpression
+
+simpleUnaryExpression ::= ~ unaryExpression
+| ! unaryExpression
+| ( basicType ) unaryExpression 
+| ( referenceType ) simpleUnaryExpression 
+| postfixExpression
+
+postfixExpression ::= primary { selector } { ++ | -- }
+
+selector ::= . qualifiedIdentifier [ arguments ]
+| [ expression ]
+
+primary ::= parExpression
+| this [ arguments ]
+| supper ( arguments | . <identifier> [ arguments ] )
+| literal
+| new creator
+| qualifiedIdentifer [ arguments]
+
+creator ::= ( basicType | qualifiedIdentifier )
+( arguments
+| [ ] { [ ] } [ arrayInitializer ]
+| newArrayDeclarator
+)
+newArrayDeclarator ::= [ [ expression ] ] { [ [ expression ] ] }
+
+literal ::= <int_literal> | <char_literal> | <string_literal> | <float_literal>
+| <long_literal> | <double_literal> | true | false | null
